@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json.schemastore.org/chrome-manifest",
+  "manifest_version": 3,
+  "name": "Blakify",
+  "description": "Allows you to insert values inside input element",
+  "version": "1.0",
+  "action": {
+    "default_popup": "index.html"
+  },
+  "permissions": [
+    "contextMenus",
+    "tabs",
+    "storage"
+  ],
+  "icons": {
+    "48": "icons/icon.png"
+  },
+  "background": {
+    "service_worker": "extension/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "js/jquery.min.js",
+        "extension/content.js"
+      ]
+    }
+  ]
+}
