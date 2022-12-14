@@ -1,0 +1,28 @@
+{
+
+    "manifest_version": 3,
+    "name": "Speak with Blakify",
+    "version": "1.0",
+
+    "description": "",
+
+    "icons": {
+        "48": "icons/icon.png"
+    },
+
+    "permissions": [
+        "contextMenus",
+        "tabs"
+    ],
+
+    "background": {
+        "service_worker": "background.js"
+    },
+
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["jquery.min.js"]
+        }
+    ]
+}
