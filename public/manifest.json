@@ -7,23 +7,16 @@
   "permissions": [
     "contextMenus",
     "tabs",
-    "tts"
+    "tts",
+    "storage"
   ],
   "icons": {
     "48": "icons/icon.png"
   },
+  "action": {
+    "default_popup": "index.html"
+  },
   "background": {
     "service_worker": "extension/background.js"
-  },
-  "content_scripts": [
-    {
-      "matches": [
-        "<all_urls>"
-      ],
-      "js": [
-        "js/jquery.min.js",
-        "extension/content.js"
-      ]
-    }
-  ]
+  }
 }

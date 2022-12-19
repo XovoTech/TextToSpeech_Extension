@@ -1,60 +1,101 @@
-import React, { useEffect } from 'react';
-import { Button, Input } from 'forging-react';
-import styles from './app.module.css'
+import React, { useEffect, useState, useMemo } from 'react';
+import { IDropdownItem, Dropdown, Input } from 'forging-react';
+import styles from './app.module.css';
 
 function App() {
 
-  useEffect(() => {
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      chrome.tabs.sendMessage(parseFloat(`${tabs[0].id}`), { action: "read_csrf_token" });
+  const [voices, setVoices] = useState<Array<chrome.tts.TtsVoice>>();
+  const [selectedVoice, setSelectedVoice] = useState<chrome.tts.TtsVoice>();
+  const [defaultPitch, setDefaultPitch] = useState<number>();
+  const [defaultRate, setDefaultRate] = useState<number>();
 
-      chrome.runtime.onMessage.addListener(function (request) {
-        if (request.action == "csrf_element") {
-          // setCSRFToken(request.csrf_token);
-          localStorage.setItem("csrf_token", request.csrf_token);
+  useEffect(() => {
+    const populateVoiceList = async () => {
+      const _voices = (await chrome.tts.getVoices()).sort(function (a, b) {
+        const aname = a.voiceName?.toUpperCase() || "";
+        const bname = b.voiceName?.toUpperCase() || "";
+
+        if (aname < bname) {
+          return -1;
+        } else if (aname == bname) {
+          return 0;
+        } else {
+          return +1;
         }
-      })
-    });
+      });
+
+      chrome.storage.sync.get(["name", "lang"]).then((result) => {
+        const selected = _voices.find(v => v.voiceName == result.name && v.lang == result.lang) || _voices[0];
+        setSelectedVoice(selected);
+      }).finally(() => {
+        setVoices(_voices);
+      });
+    }
+
+    populateVoiceList();
+
+    chrome.storage.sync.get(["pitch", "rate"]).then((result) => {
+      setDefaultPitch(parseFloat(result.pitch || "1"))
+      setDefaultRate(parseFloat(result.rate || "1"))
+    })
+
+    if (window.speechSynthesis.onvoiceschanged !== undefined) {
+      window.speechSynthesis.onvoiceschanged = populateVoiceList;
+    }
   }, []);
 
-  const onLogin: React.FormEventHandler<HTMLFormElement> = async (e) => {
-    e.preventDefault();
-    if (e.target instanceof HTMLFormElement) {
-      try {
-        const formData = new FormData(e.target);
-        formData.append("username", "test");
-        formData.append("password", "test");
-        formData.append("csrf_test_name", localStorage.getItem("csrf_token") || "");
+  const dropdownMenu = useMemo(() => {
+    if (!voices) return {};
 
-        const response = await fetch('https://blakify.com/auth/signin_action/', {
-          body: formData,
-          method: "POST",
-        });
-
-        console.log(await response.text());
-
-      } catch (e) {
-        console.log(e)
+    return voices.reduce((result, voice) => {
+      result[`${voice.voiceName || ""}|${voice.lang}`] = {
+        label: `${voice.voiceName || ""} (${voice.lang})`.trim()
       }
-    }
+      return result;
+      // eslint-disable-next-line no-unused-vars
+    }, {} as { [key in string]: IDropdownItem })
+
+  }, [voices]);
+
+  const setActiveVoice = (key: string) => {
+    const [name, lang] = key.split('|');
+    chrome.storage.sync.set({ name, lang })
+  }
+
+  const setPitch: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    chrome.storage.sync.set({ "pitch": e.currentTarget.value })
+    setDefaultPitch(parseFloat(e.currentTarget.value || "0"))
+  }
+
+  const setRange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    chrome.storage.sync.set({ "rate": e.currentTarget.value })
+    setDefaultRate(parseFloat(e.currentTarget.value || "0.5"))
   }
 
   return (
-    <form onSubmit={onLogin} className={styles.main_container}>
-      <h4 className='text-center'>Blakify</h4>
-      <Input type='floating' name="" label="Email or Username" placeholder="Enter username or email address..." />
-      <Input type='floating' name="" label="Password" htmlType="password" placeholder='Password' />
-      <Button htmlType='submit' block className='w-100 my-2'>Sign In</Button>
-      <div className='d-flex flex-row justify-content-between align-items-center'>
-        <a className='btn btn-link'>
-          Sign up
-        </a>
-        <a className='btn btn-link'>
-          Forgot Password?
-        </a>
-      </div>
-    </form>
-  );
+    <div className={styles.main_container}>
+      <h3>Configuration</h3>
+      {
+        typeof defaultRate == "number" ? (
+          <Input htmlType='range' value={defaultRate} type='floating' label="Rate" min="0.5" max="2" defaultValue="1" step="0.1" onChange={setRange} />
+        ) : null
+      }
+
+      {
+        typeof defaultRate == "number" ? (
+          <Input htmlType='range' value={defaultPitch} type='floating' label="Pitch" min="0" max="2" defaultValue="1" step="0.1" onChange={setPitch} />
+        ) : null
+      }
+
+      <Dropdown
+        className={styles.dropdown}
+        label="Voice Accent"
+        options={dropdownMenu}
+        onItemClick={setActiveVoice}
+        value={`${selectedVoice?.voiceName || ""}|${selectedVoice?.lang || ""}`}
+      />
+    </div>
+  )
 }
 
 export default App;
