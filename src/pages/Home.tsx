@@ -1,6 +1,17 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { IDropdownItem, Dropdown, Input } from 'forging-react';
-import styles from './app.module.css';
+import styles from '../app.module.css';
+import WooCommerceRestApi from "@woocommerce/woocommerce-rest-api";
+import {
+  useQuery,
+} from '@tanstack/react-query'
+
+const WooCommerce = new WooCommerceRestApi({
+  url: "https://sonia.app",
+  consumerKey: "ck_7f82ee8cfc1803d01f02dfd4cc1e49c6cc8e59d2",
+  consumerSecret: "cs_d2454a99c5edc234fb21c6af8113bcb00c35dc98",
+  version: "wc/v3",
+});
 
 function Home() {
 
@@ -42,7 +53,7 @@ function Home() {
     })
 
     chrome.storage.onChanged.addListener((changes, namespace) => {
-      if(namespace == "sync") {
+      if (namespace == "sync") {
         for (const [key, { newValue }] of Object.entries(changes)) {
           if (key == "char_count") {
             setCharCount(parseFloat(newValue));
@@ -57,8 +68,8 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    const onChangeHandler = (changes: {[key: string]: chrome.storage.StorageChange }, namespace: "sync" | "local" | "managed" | "session") => {
-      if(namespace == "sync") {
+    const onChangeHandler = (changes: { [key: string]: chrome.storage.StorageChange }, namespace: "sync" | "local" | "managed" | "session") => {
+      if (namespace == "sync") {
         for (const [key, { newValue }] of Object.entries(changes)) {
           if (key == "char_count") {
             setCharCount(parseFloat(newValue));
@@ -66,7 +77,7 @@ function Home() {
         }
       }
     }
-    
+
     chrome.storage.onChanged.addListener(onChangeHandler);
     return () => {
       chrome.storage.onChanged.removeListener(onChangeHandler);
@@ -101,6 +112,28 @@ function Home() {
     chrome.storage.sync.set({ "rate": e.currentTarget.value })
     setDefaultRate(parseFloat(e.currentTarget.value || "0.5"))
   }
+
+  // let fetchOrders = () => {
+  //   WooCommerce
+  //     .get("orders")
+  //     .then((response) => {
+  //       if (response.status === 200) {
+  //         console.log(response);
+  //       }
+  //     })
+  //     .catch((error) => {});
+  // };
+
+  const { isLoading, error, data } = useQuery({
+    queryKey: ['repoData'],
+    queryFn: async () => await WooCommerce.get('orders')
+  })
+
+  function email(user) {
+    return user["billing"]["email"] == chrome.storage.sync.get(["user_email"]);
+  }
+
+  console.log(data?.data.find(email));
 
   return (
     <div className={styles.main_container}>

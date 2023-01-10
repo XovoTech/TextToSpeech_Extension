@@ -93,7 +93,7 @@ const getURL = (params: IApiParam) => {
     if (urlRegex.test(params.path)) {
       return params.path
     }
-    return `${process.env.REACT_APP_API_URL}/${params.path}`;
+    // return `${process.env.REACT_APP_API_URL}/${params.path}`;
   }
   else
     throw new Error('Path is undefined');

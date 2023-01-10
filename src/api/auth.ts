@@ -10,7 +10,7 @@ export const useAuthAPI = () => {
     return {
         login: (data: LoginBody) => {
 
-            const store_url = process.env.BASE_URL;
+            // const store_url = process.env.BASE_URL;
             const endpoint = '/wc-auth/v1/authorize';
 
             const queryParams = {
@@ -29,7 +29,7 @@ export const useAuthAPI = () => {
                     "Content-Type": "application/json",
                 },
                 data,
-                path: `${store_url}${endpoint}?${query_string}`
+                // path: `${store_url}${endpoint}?${query_string}`
             }
             
 
