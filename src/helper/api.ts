@@ -1,5 +1,5 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { AppThunkDispatch, RootState } from '../redux/types';
+import { AppThunkDispatch } from '../redux/types';
 import { urlRegex } from "./regex";
 
 export interface IApiParam {

@@ -1,18 +1,17 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { IDropdownItem, Dropdown, Input } from 'forging-react';
 import styles from '../styles/home.module.css';
-import WooCommerceRestApi from "@woocommerce/woocommerce-rest-api";
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom';
-
+import WooCommerceRestApi from '@woocommerce/woocommerce-rest-api';
 import axios from 'axios';
 
-// const WooCommerce = new WooCommerceRestApi({
-//   url: "https://sonia.app",
-//   consumerKey: "ck_7f82ee8cfc1803d01f02dfd4cc1e49c6cc8e59d2",
-//   consumerSecret: "cs_d2454a99c5edc234fb21c6af8113bcb00c35dc98",
-//   version: "wc/v3",
-// });
+const WooCommerce = new WooCommerceRestApi({
+  url: "https://sonia.app",
+  consumerKey: "ck_7f82ee8cfc1803d01f02dfd4cc1e49c6cc8e59d2",
+  consumerSecret: "cs_d2454a99c5edc234fb21c6af8113bcb00c35dc98",
+  version: "wc/v3",
+});
 
 function Home() {
   const [verifyEmail, setEmailVerify] = useState();
@@ -133,10 +132,10 @@ function Home() {
           'Authorization': `Basic ${btoa("ck_7f82ee8cfc1803d01f02dfd4cc1e49c6cc8e59d2:cs_d2454a99c5edc234fb21c6af8113bcb00c35dc98")}`
         },
       }).then(r => console.log(r)).catch(e => console.error(e));
-      // function email(user: any) {
-      //   console.log(verifyEmail)
-      //   return user?.["billing"]?.["email"] == verifyEmail
-      // }
+      function email(user: any) {
+        console.log(verifyEmail)
+        return user?.["billing"]?.["email"] == verifyEmail
+      }
       return {}
     }
   })

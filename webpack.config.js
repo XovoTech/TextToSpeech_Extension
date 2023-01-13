@@ -51,7 +51,7 @@ module.exports = {
     port: process.env.PORT,
   },
   plugins: [
-    new HtmlWebpackPlugin({ template: "./public/index.html" }),
+    new HtmlWebpackPlugin({ template: "./public/index.html", filename: 'build.html', }),
     new webpack.HotModuleReplacementPlugin()
   ]
 };
