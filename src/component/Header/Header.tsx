@@ -18,7 +18,8 @@ const Header = React.memo(() => {
         {
             title: "Login",
             route: "/login",
-            show: !!user?.user_email
+            show: true,
+            // show: !!user?.user_email
         }
     ]).current
 
