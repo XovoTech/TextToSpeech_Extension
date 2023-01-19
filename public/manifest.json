@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/chrome-manifest",
   "manifest_version": 3,
-  "name": "Blakify",
+  "name": "Sonia App",
   "description": "Allows you to insert values inside input element",
   "version": "1.0",
   "permissions": [

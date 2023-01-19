@@ -1,8 +1,8 @@
 /// <reference types="chrome"/>
 
 chrome.contextMenus.create({
-    id: "speak_with_blakify",
-    title: "Speak with Blakify",
+    id: "speak_with_sonia_app",
+    title: "Speak with Sonia App",
     contexts: ["selection"]
 });
 
