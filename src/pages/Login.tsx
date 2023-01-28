@@ -36,8 +36,8 @@ const Login = () => {
         <div className={styles.login__container}>
             <div className={styles.login__innerContainer}>
                 <form ref={formRef} onSubmit={onLogin}>
-                    <Input name="username" defaultValue="xovo tech.asfasf" type="floating" label="Email Address" />
-                    <Input name="password" defaultValue="Dev@app" type="floating" label="Password" htmlType="password" />
+                    <Input name="username" className='w-100' defaultValue="xovo tech.asfasf" type="floating" label="Email Address" />
+                    <Input name="password" className='w-100' defaultValue="Dev@app" type="floating" label="Password" htmlType="password" />
                     <div className={styles.login__alternateActions}>
                         <Link to="/forgot">
                             Forgot Password

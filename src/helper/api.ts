@@ -10,7 +10,7 @@ export interface IApiParam {
   cancelToken?: AxiosRequestConfig['cancelToken'],
   onUploadProgress?: AxiosRequestConfig['onUploadProgress'],
   onDownloadProgress?: AxiosRequestConfig['onDownloadProgress'],
-  headers?: AxiosRequestConfig['headers'],
+  headers?: {[key in string]: string},
   responseType?: 'arraybuffer' | 'document' | 'json' | 'text' | 'stream' | 'blob'
 }
 
@@ -101,7 +101,7 @@ const getURL = (params: IApiParam) => {
 };
 
 const getHeaders = (params: IApiParam) => () => {
-  if (urlRegex.test(params.path || "")) return {}
+  // if (urlRegex.test(params.path || "")) return {}
   const access_token = /*getState().auth.user?.user_token*/ null;
   const a: {[key in string]: string} = {};
 
@@ -110,6 +110,8 @@ const getHeaders = (params: IApiParam) => () => {
   if(!(params.data instanceof FormData)) {
     a['Content-Type'] = "application/json"
   }
+
+  a['Authorization'] = `Basic ${btoa("ck_7f82ee8cfc1803d01f02dfd4cc1e49c6cc8e59d2:cs_d2454a99c5edc234fb21c6af8113bcb00c35dc98")}`
 
   if (access_token) {
     a['token'] = `${access_token}`;

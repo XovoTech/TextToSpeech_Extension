@@ -4,4 +4,12 @@
     padding: 1rem;
     width: 24rem;
     border-radius: 0.2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.profileDetailWrapper {
+    width: 85%;
 }

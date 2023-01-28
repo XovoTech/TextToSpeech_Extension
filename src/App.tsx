@@ -6,12 +6,14 @@ import { Provider, useDispatch } from 'react-redux';
 import {
   QueryClient,
   QueryClientProvider,
+  useQuery,
 } from '@tanstack/react-query'
 import { createReduxStore } from './redux/store';
 import Header from './component/Header/Header';
 import { AppThunkDispatch } from './redux/types';
 import { setAuthUser } from './redux/actions/auth';
 import router from './router/routes';
+import { getSubscriptionInfo } from './api/woocommerce_api';
 
 const queryClient = new QueryClient();
 const store = createReduxStore();
@@ -36,6 +38,13 @@ function App() {
       chrome.storage.onChanged.removeListener(onChangeHandler);
     };
   }, [dispatch]);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['repoData'],
+    queryFn: async () => {
+      console.log(await dispatch(getSubscriptionInfo()));
+    }
+  })
 
   return (
     <QueryClientProvider client={queryClient}>
