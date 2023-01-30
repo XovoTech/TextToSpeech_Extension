@@ -1,29 +1,24 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { IDropdownItem, Dropdown, Input } from 'forging-react';
 import styles from '../styles/home.module.css';
-import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom';
-import { AppThunkDispatch } from '../redux/types';
-import { useDispatch } from 'react-redux';
-import { getSubscriptionInfo } from '../api/woocommerce_api';
+import { useSelector } from 'react-redux';
+import { RootState } from '../redux/types';
 
 function Home() {
-  const [verifyEmail, setEmailVerify] = useState();
   const [voices, setVoices] = useState<Array<chrome.tts.TtsVoice>>();
   const [selectedVoice, setSelectedVoice] = useState<chrome.tts.TtsVoice>();
   const [defaultPitch, setDefaultPitch] = useState<number>();
   const [defaultRate, setDefaultRate] = useState<number>();
   const [charCount, setCharCount] = useState<number>(5000);
   const navigate = useNavigate();
-  const dispatch = useDispatch<AppThunkDispatch>();
-  
+  const user = useSelector((store: RootState) => store.auth.user);
+
   useEffect(() => {
-    chrome.storage.sync.get(['user']).then((result) => {
-      setEmailVerify(result.user?.user_email);
-    }).catch((e) => {
-      console.log(e);
-    })
-  }, [setEmailVerify])
+    if(!user?.user_email) {
+      navigate('/login');
+    } 
+  }, [user, navigate])
 
   useEffect(() => {
     const populateVoiceList = async () => {
@@ -114,12 +109,6 @@ function Home() {
   const setRange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     chrome.storage.sync.set({ "rate": e.currentTarget.value })
     setDefaultRate(parseFloat(e.currentTarget.value || "0.5"))
-  }
-
-  if(status == 'processing'){
-    navigate("/login")
-  } else if (status == 'completed'){
-    navigate("/")
   }
   
   return (

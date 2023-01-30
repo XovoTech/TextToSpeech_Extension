@@ -2,15 +2,14 @@ import React, { useEffect } from 'react';
 import './app.module.css';
 import { RouterProvider } from 'react-router-dom';
 
-import { Provider, useDispatch } from 'react-redux';
+import { Provider, useDispatch, useSelector } from 'react-redux';
 import {
   QueryClient,
   QueryClientProvider,
-  useQuery,
 } from '@tanstack/react-query'
 import { createReduxStore } from './redux/store';
 import Header from './component/Header/Header';
-import { AppThunkDispatch } from './redux/types';
+import { AppThunkDispatch, RootState } from './redux/types';
 import { setAuthUser } from './redux/actions/auth';
 import router from './router/routes';
 import { getSubscriptionInfo } from './api/woocommerce_api';
@@ -20,6 +19,7 @@ const store = createReduxStore();
 
 function App() {
   const dispatch = useDispatch<AppThunkDispatch>();
+  const user = useSelector((store: RootState) => store.auth.user);
 
   useEffect(() => {
     const onChangeHandler = (changes: { [key: string]: chrome.storage.StorageChange }, namespace: "sync" | "local" | "managed" | "session") => {
@@ -34,29 +34,35 @@ function App() {
 
     chrome.storage.onChanged.addListener(onChangeHandler);
 
+    chrome.storage.sync.get(['user']).then(
+      (result) =>
+        dispatch(setAuthUser(result.user)))
+      .catch((e) =>
+        console.log(e)
+      );
+
     return () => {
       chrome.storage.onChanged.removeListener(onChangeHandler);
     };
   }, [dispatch]);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['repoData'],
-    queryFn: async () => {
-      console.log(await dispatch(getSubscriptionInfo()));
-    }
-  })
+  useEffect(() => {
+    if (user?.user_email) dispatch(getSubscriptionInfo())
+  }, [user, dispatch]);
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <React.Fragment>
       <Header />
       <RouterProvider router={router} />
-    </QueryClientProvider>
+    </React.Fragment>
   )
 }
 
 const ProvidedApp = () => (
   <Provider store={store}>
-    <App />
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
   </Provider>
 )
 

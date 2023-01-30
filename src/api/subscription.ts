@@ -1,5 +1,4 @@
 import { useDispatch } from "react-redux"
-import { LoginBody } from "../dto/auth";
 import { dispatchAPI, IApiParam } from "../helper/api";
 import { AppThunkDispatch } from "../redux/types"
 

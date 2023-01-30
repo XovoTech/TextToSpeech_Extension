@@ -101,21 +101,11 @@ const getURL = (params: IApiParam) => {
 };
 
 const getHeaders = (params: IApiParam) => () => {
-  // if (urlRegex.test(params.path || "")) return {}
-  const access_token = /*getState().auth.user?.user_token*/ null;
-  const a: {[key in string]: string} = {};
-
-  a['Accept'] = "application/json";
-
-  if(!(params.data instanceof FormData)) {
-    a['Content-Type'] = "application/json"
-  }
-
-  a['Authorization'] = `Basic ${btoa("ck_7f82ee8cfc1803d01f02dfd4cc1e49c6cc8e59d2:cs_d2454a99c5edc234fb21c6af8113bcb00c35dc98")}`
-
-  if (access_token) {
-    a['token'] = `${access_token}`;
-  }
+  
+  const a: {[key in string]: string} = Object.assign({
+    'Accept': "application/json",
+    'Content-Type': !(params.data instanceof FormData) ? "application/json": undefined,
+  }, params.headers || {});
 
   if (Object.keys(a).length > 0)
     return a;
