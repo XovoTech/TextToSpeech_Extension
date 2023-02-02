@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/chrome-manifest",
+  "manifest_version": 3,
+  "name": "Sonia App",
+  "description": "Allows you to insert values inside input element",
+  "version": "1.0",
+  "permissions": [
+    "contextMenus",
+    "tabs",
+    "tts",
+    "storage"
+  ],
+  "icons": {
+    "48": "icons/icon.png"
+  },
+  "action": {
+    "default_popup": "build.html"
+  },
+  "background": {
+    "service_worker": "extension/background.js"
+  }
+}
