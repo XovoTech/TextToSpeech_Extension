@@ -40,7 +40,7 @@ const Profile = () => {
 
     return (
         <div className={styles.main_container}>
-            <Avatar size={"25rem"} iconName='person-circle' />
+            <Avatar className={styles.avatar} size={"25rem"} iconName='person-circle' />
             <div className={styles.profileDetailWrapper}>
                 <p>{user?.user_display_name}</p>
                 <p>Your subscription is expiring in {`${remainingDays}`} days</p>
