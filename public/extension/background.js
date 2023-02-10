@@ -2,11 +2,13 @@
 
 const LIMIT = 5000;
 
-chrome.contextMenus.create({
-    id: "speak_with_sonia_app",
-    title: "Speak with Sonia App",
-    contexts: ["selection"]
-});
+chrome.runtime.onInstalled.addListener(() => {
+    chrome.contextMenus.create({
+        id: "speak_with_sonia_app",
+        title: "Speak with Sonia App",
+        contexts: ["selection"]
+    });
+})
 
 chrome.contextMenus.onClicked.addListener(async function (info, tab) {
     let result = {};
@@ -18,7 +20,7 @@ chrome.contextMenus.onClicked.addListener(async function (info, tab) {
         console.error(e);
     }
 
-    if(result.char_count && result.char_count > 0 && result.user && result.user.user_email) {
+    if(!result.user?.has_expired) {
         await chrome.tts.speak(selectionText, {
             lang: result.lang,
             voiceName: result.name,
@@ -27,5 +29,7 @@ chrome.contextMenus.onClicked.addListener(async function (info, tab) {
         });
     }
 
-    chrome.storage.sync.set({ "char_count": (result.char_count || LIMIT) - selectionText.replace(/\s/g, '').length })
+    const newCount = (result.char_count || LIMIT) - selectionText.replace(/\s/g, '').length;
+
+    chrome.storage.sync.set({ "char_count": newCount });
 })

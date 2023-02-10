@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@aws-sdk/client-polly": "^3.269.0",
     "@tanstack/react-query": "^4.22.0",
     "axios": "^1.2.2",
     "buffer": "^6.0.3",

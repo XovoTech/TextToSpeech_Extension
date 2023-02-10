@@ -1,5 +1,5 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { AppThunkDispatch } from '../redux/types';
+import { AppThunkDispatch, RootState } from '../redux/types';
 import { urlRegex } from "./regex";
 
 export interface IApiParam {
@@ -100,12 +100,16 @@ const getURL = (params: IApiParam) => {
 
 };
 
-const getHeaders = (params: IApiParam) => () => {
+const getHeaders = (params: IApiParam) => (dispatch: AppThunkDispatch, getState: () => RootState) => {
   
   const a: {[key in string]: string} = Object.assign({
     'Accept': "application/json",
     'Content-Type': !(params.data instanceof FormData) ? "application/json": undefined,
   }, params.headers || {});
+  
+  if (getState().auth.access_token) {
+    a['token'] = getState().auth.access_token;
+  }
 
   if (Object.keys(a).length > 0)
     return a;

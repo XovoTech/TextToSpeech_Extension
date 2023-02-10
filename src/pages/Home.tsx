@@ -4,6 +4,7 @@ import styles from '../styles/home.module.css';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/types';
+import moment from 'moment';
 
 function Home() {
   const [voices, setVoices] = useState<Array<chrome.tts.TtsVoice>>();
@@ -12,12 +13,17 @@ function Home() {
   const [defaultRate, setDefaultRate] = useState<number>();
   const [charCount, setCharCount] = useState<number>(5000);
   const navigate = useNavigate();
-  const user = useSelector((store: RootState) => store.auth.user);
+  const { user, subscription } = useSelector((store: RootState) => {
+    return {
+      user: store.auth.user,
+      subscription: store.auth.subscription,
+    }
+  });
 
   useEffect(() => {
-    if(!user?.user_email) {
+    if (!user?.user_email) {
       navigate('/login');
-    } 
+    }
   }, [user, navigate])
 
   useEffect(() => {
@@ -54,7 +60,7 @@ function Home() {
     chrome.storage.onChanged.addListener((changes, namespace) => {
       if (namespace == "sync") {
         for (const [key, { newValue }] of Object.entries(changes)) {
-          if (key == "char_count") {
+          if (key == "char_count" || moment().isAfter(moment(subscription?.next_payment_date))) {
             setCharCount(parseFloat(newValue));
           }
         }
@@ -110,13 +116,17 @@ function Home() {
     chrome.storage.sync.set({ "rate": e.currentTarget.value })
     setDefaultRate(parseFloat(e.currentTarget.value || "0.5"))
   }
-  
+
   return (
     <div className={styles.main_container}>
-      <div className="d-flex flex-row justify-content-between align-items-center">
-        <small>{"Free Tier"}</small>
-        <small>{charCount}</small>
-      </div>
+      
+      {moment().isAfter(moment(subscription?.next_payment_date)) ? (
+        <div className="d-flex flex-row justify-content-between align-items-center">
+          <small>{"Free Tier"}</small>
+          <small>{charCount}</small>
+        </div>
+      ) : null}
+
       <h3>Configuration</h3>
       {
         typeof defaultRate == "number" ? (
