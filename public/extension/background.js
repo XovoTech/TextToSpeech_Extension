@@ -20,20 +20,18 @@ chrome.contextMenus.onClicked.addListener(async function (info, tab) {
         console.error(e);
     }
 
-    speakWithPolly(selectionText);
-
-    // if (!result.user?.has_expired) {
-    //     if(result.type == "google") {
-    //         await chrome.tts.speak(selectionText, {
-    //             lang: result.lang,
-    //             voiceName: result.name,
-    //             pitch: parseFloat(result.pitch || "1", 10),
-    //             rate: parseFloat(result.rate || "1", 10),
-    //         });
-    //     } else {
-    //         speakWithPolly(selectionText);
-    //     }
-    // }
+    if (!result.user?.has_expired) {
+        if(result.type == "google") {
+            await chrome.tts.speak(selectionText, {
+                lang: result.lang,
+                voiceName: result.name,
+                pitch: parseFloat(result.pitch || "1", 10),
+                rate: parseFloat(result.rate || "1", 10),
+            });
+        } else {
+            speakWithPolly(selectionText);
+        }
+    }
 
     const newCount = (result.char_count || LIMIT) - selectionText.replace(/\s/g, '').length;
 
