@@ -12,6 +12,7 @@ function Home() {
   const [defaultPitch, setDefaultPitch] = useState<number>();
   const [defaultRate, setDefaultRate] = useState<number>();
   const [charCount, setCharCount] = useState<number>(5000);
+  const [voiceType, setVoiceType] = useState<'google' | 'amazon'>("google");
   const navigate = useNavigate();
   const { user, subscription } = useSelector((store: RootState) => {
     return {
@@ -51,10 +52,11 @@ function Home() {
 
     populateVoiceList();
 
-    chrome.storage.sync.get(["pitch", "rate", "char_count"]).then((result) => {
+    chrome.storage.sync.get(["pitch", "rate", "char_count", "type"]).then((result) => {
       setDefaultPitch(parseFloat(result.pitch || "1"))
       setDefaultRate(parseFloat(result.rate || "1"))
       setCharCount(parseFloat(result.char_count || "5000"))
+      setVoiceType(result.type);
     })
 
     chrome.storage.onChanged.addListener((changes, namespace) => {
@@ -70,7 +72,7 @@ function Home() {
     if (window.speechSynthesis.onvoiceschanged !== undefined) {
       window.speechSynthesis.onvoiceschanged = populateVoiceList;
     }
-  }, []);
+  }, [subscription]);
 
   useEffect(() => {
     const onChangeHandler = (changes: { [key: string]: chrome.storage.StorageChange }, namespace: "sync" | "local" | "managed" | "session") => {
@@ -117,9 +119,14 @@ function Home() {
     setDefaultRate(parseFloat(e.currentTarget.value || "0.5"))
   }
 
+  const setType = (type: string) => {
+    setVoiceType(type as typeof voiceType);
+    chrome.storage.sync.set({ type });
+  }
+
   return (
     <div className={styles.main_container}>
-      
+
       {moment().isAfter(moment(subscription?.next_payment_date)) ? (
         <div className="d-flex flex-row justify-content-between align-items-center">
           <small>{"Free Tier"}</small>
@@ -139,14 +146,28 @@ function Home() {
           <Input htmlType='range' value={defaultPitch} type='floating' label="Pitch" min="0" max="2" defaultValue="1" step="0.1" onChange={setPitch} />
         ) : null
       }
+      <div>
 
+      </div>
       <Dropdown
         className={styles.dropdown}
         label="Voice Accent"
-        options={dropdownMenu}
-        onItemClick={setActiveVoice}
-        value={`${selectedVoice?.voiceName || ""}|${selectedVoice?.lang || ""}`}
+        options={{ 'google': { label: 'Google', icon: 'google' }, 'amazon': { label: 'Amazon', icon: 'cloud' } }}
+        onItemClick={setType}
+        value={voiceType}
       />
+      
+      {
+        voiceType == 'google' ? (
+          <Dropdown
+            className={styles.dropdown}
+            label="Google Voice Accent"
+            options={dropdownMenu}
+            onItemClick={setActiveVoice}
+            value={`${selectedVoice?.voiceName || ""}|${selectedVoice?.lang || ""}`}
+          />
+        ) : null
+      }
     </div>
   )
 }
